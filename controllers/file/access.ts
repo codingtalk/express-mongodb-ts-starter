@@ -32,7 +32,7 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
         if (!file) {
             throw new HttpException(INTERNAL_SERVER_ERROR, 'file not exist', "");
         }
-        if (loginUUID !== file.creatorUserUUID) {
+        if (loginUUID !== file.creatorUserUUID) { // Only user who own this file could assign to other users
             throw new HttpException(INTERNAL_SERVER_ERROR, 'access limited', "");
         }
         // findOneAndUpdate, if a record dose not exist, insert
