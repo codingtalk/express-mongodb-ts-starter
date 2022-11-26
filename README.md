@@ -1,9 +1,9 @@
-# Express-Mongodb-Ts-Starter
+# Express-MongoDB-Ts-Starter
 
 A project based on Express(nodejs), Mongodb, Typescript, which is enable user's regiser and login.
 At the same time, the main functions is allowing registered user<document user> to create a file<document file> and share with others.
 The creator of file take full control over this file, like update all fileds and delete.
-But user who is shared just only update the limited<document fileAccess> fileds
+But user who is shared just only update the limited<document fileAccess> fileds.
 
 # Setup
 before start this project, you need to check you dev env, something follow is required.
@@ -81,7 +81,7 @@ And the project requset base configure like below.
 Request Header
 ```
 Content-Type: application/json
-jwt-token: xxx (URL /user/register, /user/login is not required)
+jwt-token: xxx (URL /user/add, /user/login is not required)
 ... others default ...
 ```
 ## Register two users to test
