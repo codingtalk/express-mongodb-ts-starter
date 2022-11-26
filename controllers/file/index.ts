@@ -6,7 +6,7 @@ import { add as validateFileAdd, update as validateFileUpdate } from '../../vali
 import HttpException from '../../exception/HttpException';
 import ResponseVo from '../../vo/ResponseVo';
 import { getLoginUUID } from '../../utils/jwtUtil';
-import { NativeError } from 'mongoose';
+import {  NativeError } from 'mongoose';
 import * as _ from 'lodash'
 
 /**
@@ -105,9 +105,10 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
                     }, undefined, (e: NativeError,) => {
                     });
                 } else {
-                    if (!keyPathValue || typeof keyPathValue === 'string') { // if content object key path dose not exist, 
-                                                                             // or key value equals undifined or typeof eqauls string
-                                                                             // assign value as {}
+                    if (!keyPathValue || typeof keyPathValue === 'string') {
+                        // if content object key path dose not exist,
+                        // or key value equals undifined or typeof eqauls string
+                        // assign value as {}
                         await File.updateOne({ uuid: strUUID }, {
                             $set: {
                                 [`content.${arrLoopedKeys.join('.')}`]: {}
@@ -132,12 +133,15 @@ export const info = async (req: Request, res: Response, next: NextFunction) => {
     const loginUUID = getLoginUUID(req);
     try {
         const file: FileDocument | null = await File.findOne({ uuid: String(uuid) });
+        let fileAccess: FileAccessDocument | null = null;
+        let responseVoData: any = null;
         if (!file) {
             throw new HttpException(INTERNAL_SERVER_ERROR, 'file not exist', "");
         }
+        responseVoData = file.toJSON();
         //  if A user who does not own this file, need to check it's permission
         if (loginUUID !== file.creatorUserUUID) {
-            const fileAccess: FileAccessDocument | null = await FileAccess.findOne({
+            fileAccess = await FileAccess.findOne({
                 fileUUID: String(uuid),
                 userUUID: loginUUID,
                 type: 'READ',
@@ -147,7 +151,10 @@ export const info = async (req: Request, res: Response, next: NextFunction) => {
                 throw new HttpException(INTERNAL_SERVER_ERROR, 'access limited', "");
             }
         }
-        responseVo.setData(file.toJSON());
+        responseVoData.content = loginUUID === file.creatorUserUUID // get limited content value for a authorized user
+            ? responseVoData.content
+            : _.get(responseVoData.content, fileAccess.path);
+        responseVo.setData(responseVoData);
         responseVo.ok();
     } catch (error) {
         next(error);
